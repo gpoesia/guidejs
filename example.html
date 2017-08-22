@@ -11,14 +11,16 @@
 
     <h1 class="guidejs-test-step0">Hello, world!</h1>
 
-    <h2>This is a tutorial</h2>
+    <h2 class="guidejs-test-step3" style="background: white">This is a tutorial</h2>
 
     <p>Here are some buttons:</p>
     <button class="guidejs-test-step1" onclick="guidejsAdvance()">Destroy computer</button>
 
     <button onclick="guidejsBeginGuide('test')">Begin tutorial</button>
 
-    <p class="guidejs-test-step2">All good things come to an end...</p>
+    <p class="guidejs-test-step3 guidejs-test-step3-reference">Don't you dare to read me.</p>
+
+    <p class="guidejs-test-step4">All good things come to an end...</p>
 
     <div class="guidejs-test-step0-tooltip guidejs-tooltip">
       <span>Hello! Welcome to the tutorial.</span> <br/>
@@ -29,7 +31,18 @@
       <span>Click the button.</span>
     </div>
 
-    <div class="guidejs-test-step2-tooltip guidejs-tooltip" guidejs-position="above">
+    <div class="guidejs-test-step2-tooltip guidejs-tooltip">
+      <span>A step doesn't need to highlight any elements.</span>
+      <button onclick="guidejsAdvance()">Next</button>
+    </div>
+
+    <div class="guidejs-test-step3-tooltip guidejs-tooltip">
+      <span>Or it can highlight multiple elements at the same time!</span> <br/>
+      <p>One of them can be marked as a reference for the tooltip placement.</p>
+      <button onclick="guidejsAdvance()">Next</button>
+    </div>
+
+    <div class="guidejs-test-step4-tooltip guidejs-tooltip" guidejs-position="above">
       <span>As you have probably noticed, you have followed a tutorial.</span> <br/>
       <span>Thanks for all the fish!</span> <br/>
       <button onclick="guidejsAdvance()">Finish</button>

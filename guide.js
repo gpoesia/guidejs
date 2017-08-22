@@ -6,16 +6,19 @@ function guidejsBeginGuide(id) {
   __guidejsGuide = [];
 
   for (var i = 0; ; i++) {
-    var stepElements = document.getElementsByClassName("guidejs-" + id + "-step" + i);
-    if (stepElements.length == 0) {
+    var tooltipElements = document.getElementsByClassName("guidejs-" + id + "-step" + i + "-tooltip");
+
+    if (tooltipElements.length == 0) {
       break;
     }
-    var tooltipElements = document.getElementsByClassName("guidejs-" + id + "-step" + i + "-tooltip");
-    if (stepElements.length != 1 || tooltipElements.length != 1) {
-      console.error("guidejs: guide " + id + " step " + i + " must have exactly one element and tooltip.");
+
+    if (tooltipElements.length > 1) {
+      console.error("guidejs: guide " + id + " step " + i + " must have exactly one tooltip.");
       return;
     }
-    __guidejsGuide.push([stepElements[0], tooltipElements[0]]);
+
+    var stepElements = document.getElementsByClassName("guidejs-" + id + "-step" + i);
+    __guidejsGuide.push([stepElements, tooltipElements[0]]);
   }
 
   if (__guidejsGuide.length == 0) {
@@ -38,7 +41,10 @@ function guidejsFinish() {
   document.getElementById("guidejs-overlay").className = "";
 
   for (var i = 0; i < __guidejsGuide.length; i++) {
-    __guidejsGuide[i][0].classList.remove("guidejs-highlighted-element");
+    var elements = __guidejsGuide[i][0];
+    for (var j = 0; j < elements.length; j++) {
+      elements[j].classList.remove("guidejs-highlighted-element");
+    }
     __guidejsGuide[i][1].classList.remove("guidejs-highlighted-tooltip");
     __guidejsGuide[i][1].classList.add("guidejs-tooltip");
   }
@@ -55,10 +61,13 @@ function guidejsAdvance() {
   var bg = document.getElementById("guidejs-bg");
 
   if (__guidejsStep != -1) {
-    var prevElement = __guidejsGuide[__guidejsStep][0];
+    var prevElements = __guidejsGuide[__guidejsStep][0];
     var prevTooltip = __guidejsGuide[__guidejsStep][1];
 
-    prevElement.classList.remove("guidejs-highlighted-element");
+    for (var i = 0; i < prevElements.length; i++) {
+      prevElements[i].classList.remove("guidejs-highlighted-element");
+    }
+
     prevTooltip.classList.remove("guidejs-highlighted-tooltip");
     prevTooltip.classList.add("guidejs-tooltip");
     bg.style = "";
@@ -70,29 +79,43 @@ function guidejsAdvance() {
     return guidejsFinish();
   }
 
-  var element = __guidejsGuide[__guidejsStep][0];
+  var elements = __guidejsGuide[__guidejsStep][0];
+  var reference = elements.length == 1 ? elements[0] : null;
+
+  for (var i = 0; i < elements.length; i++) {
+    if (elements[i].classList.contains("guidejs-" + __guidejsGuideId + "-step" + __guidejsStep + "-reference")) {
+      reference = elements[i];
+    }
+    elements[i].classList.add("guidejs-highlighted-element");
+  }
+
   var tooltip = __guidejsGuide[__guidejsStep][1];
 
-  element.classList.add("guidejs-highlighted-element");
-
-  // Position background
-  bg.className = "guidejs-on";
-  bg.style = ("left: "   + (element.offsetLeft - 10)   + "px;" +
-              "top: "    + (element.offsetTop - 10)    + "px;" +
-              "width: "  + (element.offsetWidth + 20) + "px;" +
-              "height: " + (element.offsetHeight + 20) + "px;");
-
-  // Position tooltip.
+  // Show tooltip
   tooltip.classList.remove("guidejs-tooltip");
   tooltip.classList.add("guidejs-highlighted-tooltip");
 
-  if (tooltip.getAttribute("guidejs-position") == "above") {
-    tooltip.style = ("left: " + element.offsetLeft + "px;" +
-                     "top: " + (element.offsetTop -
-                                tooltip.offsetHeight - 10) + "px;");
+  // Position tooltip.
+  if (!!reference) {
+
+    // Position background
+    bg.className = "guidejs-on";
+    bg.style = ("left: "   + (reference.offsetLeft - 10)   + "px;" +
+                "top: "    + (reference.offsetTop - 10)    + "px;" +
+                "width: "  + (reference.offsetWidth + 20) + "px;" +
+                "height: " + (reference.offsetHeight + 20) + "px;");
+
+    if (tooltip.getAttribute("guidejs-position") == "above") {
+      tooltip.style = ("left: " + reference.offsetLeft + "px;" +
+                       "top: " + (reference.offsetTop -
+                                  tooltip.offsetHeight - 10) + "px;");
+    } else {
+      tooltip.style = ("left: " + reference.offsetLeft + "px;" +
+                       "top: " + (reference.offsetTop +
+                                  reference.offsetHeight + 10) + "px;");
+    }
   } else {
-    tooltip.style = ("left: " + element.offsetLeft + "px;" +
-                     "top: " + (element.offsetTop +
-                                element.offsetHeight + 10) + "px;");
+    tooltip.style = ("left: " + (0.5 * (document.body.offsetWidth - tooltip.offsetWidth)  + "px;") +
+                     "top: " + (0.5 * (document.body.offsetHeight - tooltip.offsetHeight) + "px;"));
   }
 }
